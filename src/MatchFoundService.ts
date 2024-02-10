@@ -1,7 +1,7 @@
 // WebSocketCommunicationService.ts
 import { PlayerSessionStore } from "./PlayerSessionStore";
-import {MatchmakingProfile} from "./MatchmakingService";
-import {createScopedLogger} from "./logger/logger";
+import { MatchmakingProfile } from "./MatchmakingService";
+import { createScopedLogger } from "./logger/logger";
 
 export class MatchFoundService {
     private logger = createScopedLogger('WebSocketCommunicationService');

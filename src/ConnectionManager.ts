@@ -4,8 +4,8 @@ import express from 'express';
 import { WebSocketServer } from 'ws';
 import { createScopedLogger } from './logger/logger';
 import { MatchmakingService } from './MatchmakingService';
-import {PlayerSession, PlayerSessionStore} from "./PlayerSessionStore";
-import {MatchFoundService} from "./MatchFoundService";
+import { PlayerSession, PlayerSessionStore } from "./PlayerSessionStore";
+import { MatchFoundService } from "./MatchFoundService";
 import config from "../config";
 
 

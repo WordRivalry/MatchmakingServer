@@ -1,6 +1,6 @@
 // MatchmakingService.ts
-import {PlayerSession, PlayerSessionStore} from "./PlayerSessionStore";
-import {createScopedLogger} from "./logger/logger";
+import { PlayerSession } from "./PlayerSessionStore";
+import { createScopedLogger } from "./logger/logger";
 
 export type GameMode = 'RANK' | 'QUICK_DUEL';
 export type ModeType = 'normal' | 'blitz';
