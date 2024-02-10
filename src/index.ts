@@ -1,22 +1,28 @@
-import WebSocket from 'ws';
+// Index.ts
+
 import { PlayerSessionStore } from './PlayerSessionStore';
-import { MatchmakingQueue } from './MatchmakingQueue';
+import { MatchmakingService } from './MatchmakingService';
 import { ConnectionManager } from './ConnectionManager';
 import config from '../config';
+import {MatchFoundService} from "./MatchFoundService";
 
-const PORT = Number(process.env.PORT) || 3000;
 const BATTLE_SERVER_URL = config.battleServerUrl;
 
-// Create the WebSocket server
-const server = new WebSocket.Server({ port: PORT });
+// Instantiate the PlayerSessionStore
+const playerSessionStore: PlayerSessionStore = new PlayerSessionStore();
 
-// Instantiate the MatchmakingQueue with the URL of the battle server
-const matchmakingQueue = new MatchmakingQueue(BATTLE_SERVER_URL);
+// Instantiate the CommunicationService
+const matchFoundService = new MatchFoundService(playerSessionStore);
 
-// Instantiate the PlayerSessionStore with the MatchmakingQueue
-const playerSessionStore = new PlayerSessionStore(matchmakingQueue);
+// Instantiate the MatchmakingQueue with the PlayerSessionStore
+const matchmakingService: MatchmakingService = new MatchmakingService();
 
-// Instantiate the ConnectionManager with the WebSocket server and PlayerSessionStore
-new ConnectionManager(server, playerSessionStore);
+// Instantiate the ConnectionManager with the MatchmakingQueue and PlayerSessionStore
+const connectionManager: ConnectionManager = new ConnectionManager(
+    matchmakingService,
+    playerSessionStore,
+    matchFoundService
+);
 
-console.log(`Matchmaking server started on port ${PORT}`);
+// Start the server
+connectionManager.listen();
