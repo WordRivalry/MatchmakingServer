@@ -3,16 +3,13 @@
 import { PlayerSessionStore } from './PlayerSessionStore';
 import { MatchmakingService } from './MatchmakingService';
 import { ConnectionManager } from './ConnectionManager';
-import config from '../config';
-import {MatchFoundService} from "./MatchFoundService";
-
-const BATTLE_SERVER_URL = config.battleServerUrl;
+import { MatchFoundService } from "./MatchFoundService";
 
 // Instantiate the PlayerSessionStore
 const playerSessionStore: PlayerSessionStore = new PlayerSessionStore();
 
 // Instantiate the CommunicationService
-const matchFoundService = new MatchFoundService(playerSessionStore);
+const matchFoundService: MatchFoundService = new MatchFoundService(playerSessionStore);
 
 // Instantiate the MatchmakingQueue with the PlayerSessionStore
 const matchmakingService: MatchmakingService = new MatchmakingService();
