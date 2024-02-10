@@ -2,6 +2,7 @@
 import { PlayerSessionStore } from "./PlayerSessionStore";
 import { MatchmakingProfile } from "./MatchmakingService";
 import { createScopedLogger } from "./logger/logger";
+import config from "../config";
 
 export class MatchFoundService {
     private logger = createScopedLogger('WebSocketCommunicationService');
@@ -9,7 +10,8 @@ export class MatchFoundService {
     constructor(private sessionStore: PlayerSessionStore) {}
 
     public async requestBattleServerSlotFor(profiles: MatchmakingProfile[]): Promise<void> {
-        // https request to battle server for rss allocation, wait for good response then call notifyPlayersOfMatch
+        // https request to battle server for rss allocation
+        const BATTLE_SERVER_URL = config.battleServerUrl;
 
         // Simulate a successful response
         await new Promise(resolve => setTimeout(resolve, 2000));
