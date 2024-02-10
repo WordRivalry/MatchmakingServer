@@ -5,6 +5,7 @@ dotenv.config();
 export default {
     nodeEnv: process.env.NODE_ENV || "development",
     battleServerUrl: process.env.BATTLE_SERVER_URL || "http://localhost:8080",
+    upgradeApiKey: process.env.UPGRADE_API_KEY || "your_valid_api_key",
 
     //  port: process.env.PORT || 3000,
     //  corsEnabled: process.env.CORS_ENABLED || "true",
