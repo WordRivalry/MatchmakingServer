@@ -23,14 +23,13 @@ export class MatchmakingService {
         // Validate that the player is not already in the queue
         if (this.matchmakingProfiles.has(session.uuid)) {
             this.logger.context('joinQueue').warn('Player already in queue.', { playerUUID: session.uuid });
-            return;
+            throw new Error('Player already in queue.');
         }
-
 
         this.matchmakingProfiles.set(session.uuid, profile); // Store the matchmaking profile
 
         // Create a queue identifier based on gameMode and modeType
-        const queueId = `${gameMode}-${modeType}`;
+        const queueId = this.computeQueueId(profile.gameMode, profile.modeType);
         if (!this.queues.has(queueId)) {
             this.queues.set(queueId, []);
         }
@@ -47,10 +46,10 @@ export class MatchmakingService {
         const profile = this.matchmakingProfiles.get(uuid);
         if (!profile) {
             this.logger.context('leaveQueue').warn('Player not in queue.', { playerUUID: uuid });
-            return;
+            throw new Error('Player not in queue.');
         }
 
-        const queueId = `${profile.gameMode}-${profile.modeType}`;
+        const queueId = this.computeQueueId(profile.gameMode, profile.modeType);
         const queue = this.queues.get(queueId);
         if (queue) {
             this.queues.set(queueId, queue.filter(p => p.uuid !== uuid));
@@ -59,6 +58,10 @@ export class MatchmakingService {
         this.matchmakingProfiles.delete(uuid); // Clean up the matchmaking profile
 
         this.logger.context('leaveQueue').debug(`Player left the queue.`, { playerUUID: uuid, gameMode: profile.gameMode, modeType: profile.modeType });
+    }
+
+    private computeQueueId(gameMode: GameMode, modeType: ModeType): string {
+        return `${gameMode}-${modeType}`;
     }
 
     private tryMatch(queueId: string):  [MatchmakingProfile, MatchmakingProfile] | undefined {
