@@ -8,7 +8,6 @@ import { PlayerSession, PlayerSessionStore } from "./PlayerSessionStore";
 import { MatchFoundService } from "./MatchFoundService";
 import config from "../config";
 
-
 export class ConnectionManager {
     private readonly app: express.Application;
     private server: http.Server;
@@ -104,8 +103,7 @@ export class ConnectionManager {
     }
 
     private handlePlayerJoinQueue(session: PlayerSession, payload: any) {
-        this.matchmakingService.joinQueue(session, payload);
-        const results = this.matchmakingService.tryMatch(session.uuid);
+        const results = this.matchmakingService.joinQueue(session, payload);
         if (results) {
             this.MatchFoundService.requestBattleServerSlotFor(results)
                 .then(() => this.logger.context("handlePlayerJoinQueue").info('Match found and notified players', { player1: results[0].uuid, player2: results[1].uuid }))

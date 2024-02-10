@@ -17,7 +17,7 @@ export class MatchmakingService {
     private queues: Map<string, MatchmakingProfile[]> = new Map();
     private logger = createScopedLogger('MatchmakingService');
 
-    public joinQueue(session: PlayerSession, { gameMode, modeType, elo }: { gameMode: GameMode; modeType: ModeType; elo: number }): void {
+    public joinQueue(session: PlayerSession, { gameMode, modeType, elo }: { gameMode: GameMode; modeType: ModeType; elo: number }): [MatchmakingProfile, MatchmakingProfile] | undefined{
         const profile: MatchmakingProfile = { uuid: session.uuid, gameMode, modeType, elo };
 
         // Validate that the player is not already in the queue
@@ -39,6 +39,8 @@ export class MatchmakingService {
         this.queues.get(queueId)?.push(profile);
 
         this.logger.context('joinQueue').debug(`Player joined the queue.`, { playerUUID: session.uuid, gameMode, modeType, elo });
+
+        return this.tryMatch(queueId);
     }
 
     public leaveQueue(uuid: string): void {
@@ -59,7 +61,7 @@ export class MatchmakingService {
         this.logger.context('leaveQueue').debug(`Player left the queue.`, { playerUUID: uuid, gameMode: profile.gameMode, modeType: profile.modeType });
     }
 
-    public tryMatch(queueId: string):  [MatchmakingProfile, MatchmakingProfile] | undefined {
+    private tryMatch(queueId: string):  [MatchmakingProfile, MatchmakingProfile] | undefined {
         const queue = this.queues.get(queueId);
         if (!queue || queue.length < 2) return;
 
