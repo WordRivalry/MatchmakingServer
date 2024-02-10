@@ -21,6 +21,7 @@ export class WebSocketMessageHandler implements IMessageHandler {
             if (action.type === 'handshake') {
                 const {uuid, username} = action;
                 this.playerSessionStore.createSession(uuid, username, ws);
+                ws.send(JSON.stringify({ type: 'success', message: 'Handshake successful' }));
                 this.logger.context("handleMessage.handshake").info('Player session created', {uuid, username});
                 return;
             }
@@ -49,7 +50,7 @@ export class WebSocketMessageHandler implements IMessageHandler {
             }
         } catch (error) {
             this.logger.context("handleMessage").error('Error handling message:', error);
-            ws.send(JSON.stringify({ type: 'error', message: 'An error occurred' }));
+            ws.send(JSON.stringify({ type: 'error', message: (error as Error).message }));
         }
     }
 
@@ -63,6 +64,7 @@ export class WebSocketMessageHandler implements IMessageHandler {
 
     private handlePlayerJoinQueue(ws: WebSocket, session: PlayerSession, payload: any): void {
         const results = this.matchmakingService.joinQueue(session, payload);
+        ws.send(JSON.stringify({ type: 'success', message: 'Joined queue successfully' }));
         if (results) {
             this.matchFoundService.requestBattleServerSlotFor(results)
                 .then(() => this.logger.context("handlePlayerJoinQueue").info('Match found and notified players', { player1: results[0].uuid, player2: results[1].uuid }))
@@ -74,12 +76,7 @@ export class WebSocketMessageHandler implements IMessageHandler {
     }
 
     private handlePlayerLeaveQueue(ws: WebSocket, playerUUID: string): void {
-        try {
-            this.matchmakingService.leaveQueue(playerUUID);
-            ws.send(JSON.stringify({ type: 'success', message: 'Left queue successfully' }));
-        } catch (error) {
-            this.logger.context("handlePlayerLeaveQueue").error('Error leaving queue:', error);
-            ws.send(JSON.stringify({ type: 'error', message: 'Error leaving queue' }));
-        }
+        this.matchmakingService.leaveQueue(playerUUID);
+        ws.send(JSON.stringify({ type: 'success', message: 'Left queue successfully' }));
     }
 }

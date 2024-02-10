@@ -17,7 +17,11 @@ export class MatchFoundService {
 
         try {
             // Perform a POST request to the battle server
-            const response = await axios.post(BATTLE_SERVER_URL, { profiles: profileUUIDs });
+            const response = await axios.post(BATTLE_SERVER_URL, {
+                profiles: profileUUIDs,
+                gameMode: profiles[0].gameMode,
+                modeType: profiles[0].modeType,
+            });
 
             // Assuming the battle server responds with a JSON object containing a gameSessionId
             const gameSessionId = response.data.gameSessionId;

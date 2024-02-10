@@ -73,6 +73,12 @@ export class ConnectionManager {
                     playerUUID = action.uuid;
                 }
 
+                if (!playerUUID) {
+                    this.logger.context("handleMessage").error('Message received before handshake');
+                    ws.close(1003, 'Teapot Error');
+                    return;
+                }
+
                 this.messageHandler.handleMessage(ws, action, playerUUID);
             });
 
