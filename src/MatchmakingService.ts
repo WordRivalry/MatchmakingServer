@@ -7,6 +7,7 @@ export type ModeType = 'normal' | 'blitz';
 
 export interface MatchmakingProfile {
     uuid: string;
+    username: string;
     gameMode: GameMode;
     modeType: ModeType;
     elo: number;
@@ -18,7 +19,7 @@ export class MatchmakingService {
     private logger = createScopedLogger('MatchmakingService');
 
     public joinQueue(session: PlayerSession, { gameMode, modeType, elo }: { gameMode: GameMode; modeType: ModeType; elo: number }): [MatchmakingProfile, MatchmakingProfile] | undefined{
-        const profile: MatchmakingProfile = { uuid: session.uuid, gameMode, modeType, elo };
+        const profile: MatchmakingProfile = { uuid: session.uuid, username: session.username, gameMode, modeType, elo };
 
         // Validate that the player is not already in the queue
         if (this.matchmakingProfiles.has(session.uuid)) {
@@ -37,7 +38,7 @@ export class MatchmakingService {
         // Add the profile to the appropriate queue
         this.queues.get(queueId)?.push(profile);
 
-        this.logger.context('joinQueue').debug(`Player joined the queue.`, { playerUUID: session.uuid, gameMode, modeType, elo });
+        this.logger.context('joinQueue').debug(`Player joined the queue.`, { playerUUID: session.uuid, username: session.username, gameMode, modeType, elo });
 
         return this.tryMatch(queueId);
     }

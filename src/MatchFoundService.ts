@@ -7,20 +7,24 @@ import axios from "axios";
 
 
 export class MatchFoundService {
-    private logger = createScopedLogger('WebSocketCommunicationService');
+    private logger = createScopedLogger('MatchFoundService');
 
-    constructor(private sessionStore: PlayerSessionStore) {}
+    constructor(private sessionStore: PlayerSessionStore) { }
 
     public async requestBattleServerSlotFor(profiles: MatchmakingProfile[]): Promise<void> {
         const BATTLE_SERVER_URL = config.battleServerUrl + '/request-alloc';
-        const profileUUIDs = profiles.map(profile => profile.uuid);
-
+        const playerMetadata = profiles.map(profile => ({ uuid: profile.uuid, username: profile.username }));
+    
         try {
             // Perform a POST request to the battle server
             const response = await axios.post(BATTLE_SERVER_URL, {
-                profiles: profileUUIDs,
-                gameMode: profiles[0].gameMode,
-                modeType: profiles[0].modeType,
+                playersMetadata: playerMetadata,
+                gameMode: profiles[0].gameMode.toUpperCase(),
+                modeType: profiles[0].modeType.toUpperCase(),
+            }, {
+                headers: {
+                    'Content-Type': 'application/json'
+                }
             });
 
             // Assuming the battle server responds with a JSON object containing a gameSessionId

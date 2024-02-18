@@ -3,7 +3,7 @@ import { PlayerSessionStore } from './PlayerSessionStore';
 import { MatchmakingService } from './MatchmakingService';
 import { ConnectionManager } from './ConnectionManager';
 import { MatchFoundService } from "./MatchFoundService";
-import {WebSocketMessageHandler} from "./WebSocketMessageHandler";
+import { WebSocketMessageHandler } from "./WebSocketMessageHandler";
 
 // Instantiate the PlayerSessionStore
 const playerSessionStore: PlayerSessionStore = new PlayerSessionStore();

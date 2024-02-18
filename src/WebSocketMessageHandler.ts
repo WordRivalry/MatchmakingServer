@@ -15,22 +15,15 @@ export class WebSocketMessageHandler implements IMessageHandler {
         private matchFoundService: MatchFoundService
     ) {}
 
-    public handleMessage(ws: WebSocket, action: any, playerUUID: string | undefined): void {
+    public handleConnection(ws: WebSocket, playerUUID: string, playerUsername: string): void {
+        this.playerSessionStore.createSession(playerUUID, playerUsername, ws);
+        ws.send(JSON.stringify({ type: 'success', message: 'Handshake successful' }));
+        this.logger.context("handleMessage.handshake").info('Player session created', {playerUUID, playerUsername});
+    }
+
+    public handleMessage(ws: WebSocket, action: any, playerUUID: string): void {
 
         try {
-            if (action.type === 'handshake') {
-                const {uuid, username} = action;
-                this.playerSessionStore.createSession(uuid, username, ws);
-                ws.send(JSON.stringify({ type: 'success', message: 'Handshake successful' }));
-                this.logger.context("handleMessage.handshake").info('Player session created', {uuid, username});
-                return;
-            }
-
-            if (playerUUID === undefined) {
-                this.logger.context("handleMessage").warn('Received message from unidentified player', { action });
-                return;
-            }
-
             const session = this.playerSessionStore.getSession(playerUUID);
             if (session === undefined) {
                 this.logger.context("handleMessage").warn('Player session not found', { playerUUID });
@@ -51,6 +44,8 @@ export class WebSocketMessageHandler implements IMessageHandler {
         } catch (error) {
             this.logger.context("handleMessage").error('Error handling message:', error);
             ws.send(JSON.stringify({ type: 'error', message: (error as Error).message }));
+            this.handlePlayerLeaveQueue(ws, playerUUID);
+            this.handleDisconnect(playerUUID);
         }
     }
 
