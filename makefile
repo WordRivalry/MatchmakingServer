@@ -1,4 +1,8 @@
 build:
+	# Build the server
+	npm run build
+
+docker-build: build
 	# Build the docker image
 	docker build -t matchmakingserver .
 
@@ -14,7 +18,7 @@ docker-push:
 	# Push the docker image to Google Cloud Registry
 	docker push gcr.io/wordrivalry/matchmakingserver:latest
 
-docker-deploy: build docker-tag docker-push
+docker-deploy: docker-build docker-tag docker-push
 	# Deploy the docker image to Google Cloud Run
 	gcloud run deploy matchmakingserver --image gcr.io/wordrivalry/matchmakingserver:latest --platform managed --allow-unauthenticated
 
