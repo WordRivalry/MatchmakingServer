@@ -19,6 +19,7 @@ export class MatchFoundService {
             // Perform a POST request to the battle server
             const response = await axios.post(BATTLE_SERVER_URL, {
                 playersMetadata: playerMetadata,
+                // TODO: Better Validation
                 gameMode: profiles[0].gameMode.toUpperCase(),
                 modeType: profiles[0].modeType.toUpperCase(),
             }, {
@@ -33,6 +34,18 @@ export class MatchFoundService {
             if (gameSessionId) {
                 this.notifyPlayersOfMatch(profiles, gameSessionId);
                 this.logger.context('requestBattleServerSlotFor').info('Battle server slot requested successfully.', { gameSessionId });
+                
+                // Close the connection from player
+                profiles.forEach(profile => {
+                    this.sessionStore.getSession(profile.uuid)?.ws.close(1000,'Match found');
+                    this.logger.context('requestBattleServerSlotFor').info('Player ws connection closed.', { playerUUID: profile.uuid, gameSessionId });
+                });
+                
+                // Delete player session from PlayerSessionStore
+                profiles.forEach(profile => {
+                    this.sessionStore.deleteSession(profile.uuid);
+                    this.logger.context('requestBattleServerSlotFor').info('Player sessions deleted.', { playerUUID: profile.uuid, gameSessionId });
+                });
             } else {
                 // Handle the case where gameSessionId is not present in the response
                 this.logger.context('requestBattleServerSlotFor').error('No gameSessionId received from battle server.');

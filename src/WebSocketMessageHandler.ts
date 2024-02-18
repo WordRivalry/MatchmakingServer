@@ -44,14 +44,13 @@ export class WebSocketMessageHandler implements IMessageHandler {
         } catch (error) {
             this.logger.context("handleMessage").error('Error handling message:', error);
             ws.send(JSON.stringify({ type: 'error', message: (error as Error).message }));
-            this.handlePlayerLeaveQueue(ws, playerUUID);
-            this.handleDisconnect(playerUUID);
+            this.handleDisconnect(ws, playerUUID);
         }
     }
 
-    public handleDisconnect(playerUUID: string | undefined): void {
+    public handleDisconnect(ws: WebSocket, playerUUID: string | undefined): void {
         if (playerUUID) {
-            this.matchmakingService.handlePlayerDisconnect(playerUUID);
+            this.handlePlayerLeaveQueue(ws, playerUUID);
             this.playerSessionStore.deleteSession(playerUUID);
             this.logger.context("handleDisconnect").info('Player disconnected', { uuid: playerUUID });
         }

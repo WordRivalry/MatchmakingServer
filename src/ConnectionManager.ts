@@ -9,7 +9,7 @@ import config from "../config";
 export interface IMessageHandler {
  handleConnection(ws: WebSocket, playerUUID: string, username: string): void;
  handleMessage(ws: WebSocket, message: string, playerUUID: string): void;
- handleDisconnect(playerUUID: string | undefined): void;
+ handleDisconnect(ws: WebSocket, playerUUID: string | undefined): void;
 }
 
 export class ConnectionManager {
@@ -87,7 +87,7 @@ export class ConnectionManager {
    });
 
    ws.on('close', () => {
-    this.messageHandler.handleDisconnect(playerUUID);
+    this.messageHandler.handleDisconnect(ws, playerUUID);
    });
   });
  }
