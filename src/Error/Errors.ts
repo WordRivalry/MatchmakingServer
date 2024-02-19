@@ -82,7 +82,7 @@ export class SessionDeletionFailed extends SessionError {
 
 export class SessionCreationFailed extends SessionError {
   constructor() {
-    super('Session cannot be created', 3002);
+    super('Session cannot be created since it already exist', 3002);
   }
 }
 
@@ -132,30 +132,24 @@ export class MatchmakingProfileNotFoundError extends MatchmakingError {
   }
 }
 
-export class MatchmakingProfileCreationError extends MatchmakingError {
-  constructor() {
-    super('Matchmaking profile cannot be created', 4001);
-  }
-}
-
 export class MatchmakingProfileDeletionError extends MatchmakingError {
   constructor() {
-    super('Matchmaking profile cannot be removed since it does not exist', 4002);
+    super('Matchmaking profile cannot be removed since it does not exist', 4001);
   }
 }
 
 export class MatchmakingProfileAlreadyInQueueError extends MatchmakingError {
   constructor() {
-    super('Matchmaking profile already in queue', 4003);
+    super('Matchmaking profile already in queue', 4002);
   }
 }
 
 export class BattleServerSlotRequestError extends MatchmakingError {
   constructor(error: any) {
     if (error instanceof Error) {
-      super(error.message, 4004);
+      super(error.message, 4003);
     } else {
-      super('Error requesting battle server slot', 4004);
+      super('Error requesting battle server slot', 4003);
     }
   }
 }
