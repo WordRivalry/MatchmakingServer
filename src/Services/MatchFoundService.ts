@@ -1,9 +1,9 @@
 // WebSocketCommunicationService.ts
 import { PlayerSessionStore } from "./PlayerSessionStore";
-import { MatchmakingProfile } from "./MatchmakingService";
-import { createScopedLogger } from "./logger/logger";
-import config from "../config";
+import { createScopedLogger } from "../logger/logger";
+import config from "../../config";
 import axios from "axios";
+import { MatchmakingProfile } from "./Matchmaking/MatchmakingProfileManager";
 
 
 export class MatchFoundService {
@@ -15,6 +15,11 @@ export class MatchFoundService {
         const BATTLE_SERVER_URL = config.battleServerUrl + '/request-alloc';
         const playerMetadata = profiles.map(profile => ({ uuid: profile.uuid, username: profile.username }));
     
+        if (config.nodeEnv === 'development') {
+            this.logger.context('requestBattleServerSlotFor').info('Skipping battle server request in development environment.');
+            return;
+        }
+
         try {
             // Perform a POST request to the battle server
             const response = await axios.post(BATTLE_SERVER_URL, {

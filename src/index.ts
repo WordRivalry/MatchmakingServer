@@ -1,9 +1,9 @@
 // Index.ts
-import { PlayerSessionStore } from './PlayerSessionStore';
-import { MatchmakingService } from './MatchmakingService';
+import { PlayerSessionStore } from './Services/PlayerSessionStore';
+import { MatchmakingService } from './Services/Matchmaking/MatchmakingService';
 import { ConnectionManager } from './ConnectionManager';
-import { MatchFoundService } from "./MatchFoundService";
-import { WebSocketMessageHandler } from "./WebSocketMessageHandler";
+import { MatchFoundService } from "./Services/MatchFoundService";
+import { WebSocketEventHandler } from "./Services/WebSocketEventHandler";
 
 // Instantiate the PlayerSessionStore
 const playerSessionStore: PlayerSessionStore = new PlayerSessionStore();
@@ -15,7 +15,7 @@ const matchFoundService: MatchFoundService = new MatchFoundService(playerSession
 const matchmakingService: MatchmakingService = new MatchmakingService();
 
 // Instantiate the MessageHandler with the MatchmakingQueue and PlayerSessionStore
-const messageHandler: WebSocketMessageHandler = new WebSocketMessageHandler(matchmakingService, playerSessionStore, matchFoundService);
+const messageHandler: WebSocketEventHandler = new WebSocketEventHandler(matchmakingService, playerSessionStore, matchFoundService);
 
 // Instantiate the ConnectionManager with the MatchmakingQueue and PlayerSessionStore
 const connectionManager: ConnectionManager = new ConnectionManager(messageHandler);

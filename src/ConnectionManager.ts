@@ -2,13 +2,14 @@
 import http, { createServer } from 'http';
 import express from 'express';
 import cors from "cors";
-import { WebSocket, WebSocketServer } from 'ws';
+import { WebSocket, WebSocketServer, RawData } from 'ws';
 import { createScopedLogger } from './logger/logger';
 import config from "../config";
+import { ErrorHandlingService } from './Error/Errors';
 
 export interface IMessageHandler {
  handleConnection(ws: WebSocket, playerUUID: string, username: string): void;
- handleMessage(ws: WebSocket, message: string, playerUUID: string): void;
+ handleMessage(ws: WebSocket, message: RawData, playerUUID: string): void;
  handleDisconnect(ws: WebSocket, playerUUID: string | undefined): void;
 }
 
@@ -73,17 +74,11 @@ export class ConnectionManager {
    this.messageHandler.handleConnection(ws, playerUUID, playerUsername);
 
    ws.on('message', (message) => {
-
-    let action;
     try {
-     action = JSON.parse(message.toString());
+        this.messageHandler.handleMessage(ws, message, playerUUID);
     } catch (error) {
-     this.logger.context("handleMessage").error('Error parsing message:', error);
-     ws.close(1007, 'Invalid JSON');
-     return;
+        ErrorHandlingService.sendError(ws, error);
     }
-
-    this.messageHandler.handleMessage(ws, action, playerUUID);
    });
 
    ws.on('close', () => {

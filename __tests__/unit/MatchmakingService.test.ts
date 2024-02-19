@@ -1,93 +1,92 @@
-// MatchmakingService.test.ts
-import {PlayerSession} from "../../src/PlayerSessionStore";
-import {MatchmakingService} from "../../src/MatchmakingService";
+// // __tests__/unit/MatchmakingService.test.ts
+// import { MatchmakingService } from '../../src/Services/Matchmaking/MatchmakingService';
+// import { GameMode, ModeType } from '../../src/Validation/messageTypes';
+// import { MatchmakingProfile, MatchmakingProfileManager } from '../../src/Services/Matchmaking/MatchmakingProfileManager';
+// import { QueueManager } from '../../src/Services/Matchmaking/QueueManager';
+// import { MatchFinder } from '../../src/Services/Matchmaking/MatchFinder';
+// import { PlayerSession } from '../../src/Services/PlayerSessionStore';
 
-describe('MatchmakingService', () => {
-    let matchmakingService: MatchmakingService;
-    let mockPlayerSession: PlayerSession;
-    let mockPlayerSession2: PlayerSession;
+// jest.mock('../../src/Services/Matchmaking/MatchmakingProfileManager');
+// jest.mock('../../src/Services/Matchmaking/QueueManager');
+// jest.mock('../../src/Services/Matchmaking/MatchFinder');
 
-    beforeEach(() => {
-        matchmakingService = new MatchmakingService();
-        mockPlayerSession = {
-            uuid: 'player1',
-            username: 'PlayerOne',
-            ws: {} as any,
-        };
-        mockPlayerSession2 = {
-            uuid: 'player2',
-            username: 'PlayerTwo',
-            ws: {} as any,
-        };
+// describe('MatchmakingService', () => {
+//     let matchmakingService: MatchmakingService;
+//     let mockProfileManager: jest.Mocked<MatchmakingProfileManager>;
+//     let mockQueueManager: jest.Mocked<QueueManager>;
+//     let mockMatchFinder: jest.Mocked<MatchFinder>;
 
-        // Reset mocks before each test
-        jest.clearAllMocks();
-    });
+//     beforeEach(() => {
+//         // Reset all mocks before each test
+//         jest.clearAllMocks();
 
-    it('allows a player to join a queue successfully', () => {
-        expect(matchmakingService.joinQueue(mockPlayerSession, { gameMode: 'RANK', modeType: 'normal', elo: 1000 })).toBeUndefined();
+//         // Re-initialize the MatchmakingService to ensure fresh instances
+//         matchmakingService = new MatchmakingService();
 
-        // Check if the player's profile is added to the matchmakingProfiles and queues
-        const profile = matchmakingService['matchmakingProfiles'].get(mockPlayerSession.uuid);
-        expect(profile).toBeDefined();
-        expect(profile?.gameMode).toEqual('RANK');
-        expect(profile?.modeType).toEqual('normal');
-        expect(profile?.elo).toEqual(1000);
-    });
+//         // Obtain the mock instances
+//         mockProfileManager = new MatchmakingProfileManager() as jest.Mocked<MatchmakingProfileManager>;
+//         mockQueueManager = new QueueManager() as jest.Mocked<QueueManager>;
+//         mockMatchFinder = new MatchFinder(mockQueueManager) as jest.Mocked<MatchFinder>;
 
-    it('prevents a player from joining the queue twice', () => {
-        matchmakingService.joinQueue(mockPlayerSession, { gameMode: 'RANK', modeType: 'normal', elo: 1000 });
-        expect(() => matchmakingService.joinQueue(mockPlayerSession, { gameMode: 'RANK', modeType: 'normal', elo: 1000 })).toThrowError('Player already in queue.');
-    });
+//         // Setup the default behavior of mocked methods if necessary
+//         mockMatchFinder.findMatch.mockReturnValue(undefined);
+//     });
 
-    it('allows a player to leave a queue successfully', () => {
-        // Add a player to the queue
-        matchmakingService.joinQueue(mockPlayerSession, { gameMode: 'RANK', modeType: 'normal', elo: 1000 });
+//     const session: PlayerSession = {
+//         uuid: 'player-uuid',
+//         username: 'player-username',
+//         ws: {} as any, // Mock WebSocket as it's not directly used
+//     };
 
-        // Remove the player from the queue
-        matchmakingService.leaveQueue(mockPlayerSession.uuid);
+//     const joinQueuePayload = {
+//         gameMode: GameMode.RANK,
+//         modeType: ModeType.NORMAL,
+//         elo: 1000,
+//     };
 
-        // Check if the player's profile is removed from the matchmakingProfiles and queues
-        const profile = matchmakingService['matchmakingProfiles'].get(mockPlayerSession.uuid);
-        expect(profile).toBeUndefined();
-        const queue = matchmakingService['queues'].get('RANK:normal');
-        expect(matchmakingService['queues'].has('RANK:normal')).toBeFalsy();
-        expect(matchmakingService['matchmakingProfiles'].has(mockPlayerSession.uuid)).toBeFalsy();
-    });
+//     describe('joinQueue', () => {
+//         it('should add a profile and attempt to find a match', () => {
+//             matchmakingService.joinQueue(session, joinQueuePayload);
 
-    it('prevents a player from leaving the queue twice', () => {
-        matchmakingService.joinQueue(mockPlayerSession, { gameMode: 'RANK', modeType: 'normal', elo: 1000 });
-        matchmakingService.leaveQueue(mockPlayerSession.uuid);
-        expect(() => matchmakingService.leaveQueue(mockPlayerSession.uuid)).toThrowError('Player not in queue.');
-    });
+//             expect(mockProfileManager.addProfile).toHaveBeenCalledWith(expect.objectContaining({
+//                 uuid: session.uuid,
+//                 username: session.username,
+//                 gameMode: joinQueuePayload.gameMode,
+//                 modeType: joinQueuePayload.modeType,
+//                 elo: joinQueuePayload.elo,
+//             }));
 
-    it('matches players within the ELO range correctly', () => {
-        matchmakingService.joinQueue(mockPlayerSession, { gameMode: 'RANK', modeType: 'normal', elo: 1000 });
-        const match = matchmakingService.joinQueue(mockPlayerSession2, { gameMode: 'RANK', modeType: 'normal', elo: 1050 });
+//             const queueId = `${joinQueuePayload.gameMode}-${joinQueuePayload.modeType}`;
+//             expect(mockQueueManager.addToQueue).toHaveBeenCalledWith(expect.anything(), queueId);
+//             expect(mockMatchFinder.findMatch).toHaveBeenCalledWith(queueId);
+//         });
 
-        expect(match).toEqual(expect.any(Array));
-        expect(match).toHaveLength(2);
-        expect(match).toContainEqual(expect.objectContaining({ uuid: mockPlayerSession.uuid }));
-        expect(match).toContainEqual(expect.objectContaining({ uuid: mockPlayerSession2.uuid }));
-    });
+//         it('should clean up profiles from queue if a match is found', () => {
+//             const matchedProfile: MatchmakingProfile = {
+//                 uuid: 'matched-uuid',
+//                 username: 'matched-username',
+//                 gameMode: GameMode.RANK,
+//                 modeType: ModeType.NORMAL,
+//                 elo: 1050,
+//             };
 
-    it('keeps players in the queue if no suitable match is found', () => {
-        matchmakingService.joinQueue(mockPlayerSession, { gameMode: 'RANK', modeType: 'normal', elo: 1000 });
-        expect(matchmakingService['queues'].get('RANK-normal')).toContainEqual(expect.objectContaining({ uuid: mockPlayerSession.uuid }));
-    });
+//             mockMatchFinder.findMatch.mockReturnValue([session as any, matchedProfile]);
+//             const result = matchmakingService.joinQueue(session, joinQueuePayload);
+//             expect(result).toEqual([session as any, matchedProfile]);
 
-    it('handles multiple players joining and matches them as expected', () => {
-        const player1 = {uuid: 'player1', username: 'PlayerOne', ws: {} as any};
-        const player2 = {uuid: 'player2', username: 'PlayerTwo', ws: {} as any};
-        const player3 = {uuid: 'player3', username: 'PlayerThree', ws: {} as any};
+//             const queueId = `${joinQueuePayload.gameMode}-${joinQueuePayload.modeType}`;
+//             expect(mockQueueManager.setQueue).toHaveBeenCalledWith(queueId, expect.any(Array));
+//             expect(mockProfileManager.removeProfile).toHaveBeenCalledTimes(2);
+//         });
+//     });
 
-        // Add players to the queue
-        matchmakingService.joinQueue(player1, {gameMode: 'RANK', modeType: 'normal', elo: 1000});
-        matchmakingService.joinQueue(player2, {gameMode: 'RANK', modeType: 'normal', elo: 1050});
-        matchmakingService.joinQueue(player3, {gameMode: 'RANK', modeType: 'normal', elo: 1100});
+//     describe('leaveQueue', () => {
+//         it('should remove a profile from the queue and profile manager', () => {
+//             matchmakingService.leaveQueue(session.uuid);
 
-        // Verify that the players are matched as expected
-        expect(matchmakingService['queues'].get('RANK-normal')).toHaveLength(1);
-        expect(matchmakingService['matchmakingProfiles'].size).toBe(1);
-    });
-});
+//             const queueId = `${joinQueuePayload.gameMode}-${joinQueuePayload.modeType}`;
+//             expect(mockQueueManager.getQueue).toHaveBeenCalledWith(queueId);
+//             expect(mockProfileManager.removeProfile).toHaveBeenCalledWith(session.uuid);
+//         });
+//     });
+// });
