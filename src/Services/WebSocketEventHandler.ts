@@ -20,7 +20,7 @@ export class WebSocketEventHandler implements IWebSocketEventHandler {
 
   public handleConnection(ws: WebSocket, playerUUID: string, playerUsername: string): void {
     this.playerSessionStore.createSession(playerUUID, playerUsername, ws);
-    this.sendSuccessMessage(ws, 'Connected successfully');
+    this.sendSuccessMessage(ws, 'CONNECTION_SUCCESS');
   }
 
   public handleDisconnect(ws: WebSocket, playerUUID: string | undefined): void {
@@ -46,7 +46,7 @@ export class WebSocketEventHandler implements IWebSocketEventHandler {
 
   private handlePlayerJoinQueue(ws: WebSocket, session: PlayerSession, payload: JoinQueuePayload): void {
     const results = this.matchmakingService.joinQueue(session, payload);
-    this.sendSuccessMessage(ws, 'Joined queue successfully');
+    this.sendSuccessMessage(ws, 'JOIN_QUEUE_SUCCESS');
     if (results) {
       this.matchFoundService.requestBattleServerSlotFor(results)
         .then(() => this.logger.context("handlePlayerJoinQueue").info('Match found and notified players', { player1: results[0].uuid, player2: results[1].uuid }))
@@ -58,11 +58,11 @@ export class WebSocketEventHandler implements IWebSocketEventHandler {
 
   private handlePlayerLeaveQueue(ws: WebSocket, playerUUID: string): void {
     this.matchmakingService.leaveQueue(playerUUID);
-    this.sendSuccessMessage(ws, 'Left queue successfully');
+    this.sendSuccessMessage(ws, 'LEFT_QUEUE_SUCCESS');
   }
 
-  private sendSuccessMessage(ws: WebSocket, message: string): void {
-    this.sendMessage(ws, { type: 'success', message });
+  private sendSuccessMessage(ws: WebSocket, type: string): void {
+    this.sendMessage(ws, { type });
   }
 
   private sendMessage(ws: WebSocket, message: object): void {

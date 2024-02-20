@@ -70,7 +70,11 @@ export class MatchFoundService {
                 type: 'MATCH_FOUND',
                 payload: {
                     gameSessionId,
-                    opponent: profiles.find(p => p.uuid !== profile.uuid)
+                    // Only username and elo are sent to the opponent
+                    opponent: {
+                        opponentUsername: profiles.find(p => p.uuid !== profile.uuid)?.username,
+                        opponentElo: profiles.find(p => p.uuid !== profile.uuid)?.elo
+                    }
                 }
             });
         }

@@ -11,8 +11,8 @@ export enum ModeType {
 }
 
 export enum ActionType {
-  JOIN_QUEUE = 'joinQueue',
-  LEAVE_QUEUE = 'leaveQueue',
+  JOIN_QUEUE = 'JOIN_QUEUE',
+  LEAVE_QUEUE = 'LEAVE_QUEUE',
 }
 
 // Generic WebSocket action
