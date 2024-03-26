@@ -1,11 +1,11 @@
-// src/Services/Matchmaking/ProfileManager.ts
+// /ProfileManager.ts
 
 import { MatchmakingProfileAlreadyInQueueError, MatchmakingProfileDeletionError, MatchmakingProfileNotFoundError } from "../../Error/Errors";
 import { GameMode, ModeType } from "../../Validation/messageTypes";
 
 export interface MatchmakingProfile {
     uuid: string;
-    username: string;
+    playerName: string;
     gameMode: GameMode;
     modeType: ModeType;
     elo: number;
@@ -35,5 +35,9 @@ export class MatchmakingProfileManager {
             throw new MatchmakingProfileNotFoundError();
         }
         return profile;
+    }
+
+    isProfileInQueue(uuid: string): boolean {
+        return this.profiles.has(uuid);
     }
 }

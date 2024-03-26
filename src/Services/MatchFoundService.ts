@@ -13,12 +13,12 @@ export class MatchFoundService {
 
     public async requestBattleServerSlotFor(profiles: MatchmakingProfile[]): Promise<void> {
         const BATTLE_SERVER_URL = config.battleServerUrl + '/request-alloc';
-        const playerMetadata = profiles.map(profile => ({ uuid: profile.uuid, username: profile.username }));
+        const playerMetadata = profiles.map(profile => ({ playerName: profile.playerName, playerEloRating: profile.elo }));
     
-        if (config.nodeEnv === 'development') {
-            this.logger.context('requestBattleServerSlotFor').info('Skipping battle server request in development environment.');
-            return;
-        }
+        // if (config.nodeEnv === 'development') {
+        //     this.logger.context('requestBattleServerSlotFor').info('Skipping battle server request in development environment.');
+        //     return;
+        // }
 
         try {
             // Perform a POST request to the battle server
@@ -72,7 +72,7 @@ export class MatchFoundService {
                     gameSessionId,
                     // Only username and elo are sent to the opponent
                     opponent: {
-                        opponentUsername: profiles.find(p => p.uuid !== profile.uuid)?.username,
+                        opponentUsername: profiles.find(p => p.uuid !== profile.uuid)?.playerName,
                         opponentElo: profiles.find(p => p.uuid !== profile.uuid)?.elo
                     }
                 }

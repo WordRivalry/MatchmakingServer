@@ -13,7 +13,7 @@ export class MatchmakingService {
     public joinQueue(session: PlayerSession, { gameMode, modeType, elo }: JoinQueuePayload): [MatchmakingProfile, MatchmakingProfile] | undefined{
         const profile: MatchmakingProfile = {
             uuid: session.uuid,
-            username: session.username,
+            playerName: session.playerName,
             gameMode,
             modeType,
             elo
@@ -44,6 +44,10 @@ export class MatchmakingService {
         }
 
         this.profileManager.removeProfile(uuid);
+    }
+
+    public isProfileInQueue(uuid: string): boolean {
+        return this.profileManager.isProfileInQueue(uuid);
     }
 
     private computeQueueId(gameMode: GameMode, modeType: ModeType): string {

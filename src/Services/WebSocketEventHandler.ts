@@ -18,15 +18,21 @@ export class WebSocketEventHandler implements IWebSocketEventHandler {
     private matchFoundService: MatchFoundService
   ) { }
 
-  public handleConnection(ws: WebSocket, playerUUID: string, playerUsername: string): void {
-    this.playerSessionStore.createSession(playerUUID, playerUsername, ws);
+  public handleConnection(ws: WebSocket, playerUUID: string, playerName: string): void {
+    this.playerSessionStore.createSession(playerUUID, playerName, ws);
     this.sendSuccessMessage(ws, 'CONNECTION_SUCCESS');
   }
 
   public handleDisconnect(ws: WebSocket, playerUUID: string | undefined): void {
     if (playerUUID) {
-      this.matchmakingService.leaveQueue(playerUUID);
-      this.playerSessionStore.deleteSession(playerUUID);
+      // Check if the player is in the queue and remove them
+      if (this.matchmakingService.isProfileInQueue(playerUUID)) {
+        this.matchmakingService.leaveQueue(playerUUID);
+      }
+
+      if (this.playerSessionStore.hasSession(playerUUID)) {
+        this.playerSessionStore.deleteSession(playerUUID);
+      }
     }
   }
 

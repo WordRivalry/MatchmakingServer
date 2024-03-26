@@ -4,18 +4,22 @@ import { SessionCreationFailed, SessionDeletionFailed, SessionNotFoundError } fr
 
 export interface PlayerSession {
     uuid: string;
-    username: string;
+    playerName: string;
     ws: WebSocket;
 }
 
 export class PlayerSessionStore {
     private sessions: Map<string, PlayerSession> = new Map();
-    createSession(uuid: string, username: string, ws: WebSocket): void {
+    createSession(uuid: string, playerName: string, ws: WebSocket): void {
         if (this.sessions.has(uuid)) {
-            throw new SessionCreationFailed();
+            console.log('Session already exists, reconnecting...');
         }
-        const session: PlayerSession = { uuid, username, ws };
+        const session: PlayerSession = { uuid, playerName, ws };
         this.sessions.set(uuid, session);
+    }
+
+    hasSession(uuid: string): boolean {
+        return this.sessions.has(uuid);
     }
 
     getSession(uuid: string): PlayerSession {

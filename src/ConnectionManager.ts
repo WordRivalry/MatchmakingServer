@@ -42,25 +42,30 @@ export class ConnectionManager {
    const apiKey = request.headers['x-api-key'] as string | undefined;
 
    const playerUUID = request.headers['x-player-uuid'] as string | undefined;
-   const playerUsername = request.headers['x-player-username'] as string | undefined;
+   const playerName = request.headers['x-player-name'] as string | undefined;
 
-   if (!playerUUID || !playerUsername) {
+   if (!playerUUID || !playerName) {
     socket.write('HTTP/1.1 400 Bad Request\r\n\r\n');
     socket.destroy();
     return;
    }
 
-   if (!this.isValidApiKey(apiKey)) {
+   if (!this.authenticateRequest(request)) {
     socket.write('HTTP/1.1 401 Unauthorized\r\n\r\n');
     socket.destroy();
     return;
-   }
+    }
 
    this.wss.handleUpgrade(request, socket, head, (ws) => {
     this.wss.emit('connection', ws, request);
    });
   });
  }
+
+ private authenticateRequest(request: http.IncomingMessage): boolean {
+    const apiKey: string | undefined = request.headers['x-api-key'] as string | undefined;
+    return this.isValidApiKey(apiKey);
+}
 
  private isValidApiKey(apiKey: string | undefined): boolean {
   const VALID_API_KEY = config.upgradeApiKey;
@@ -70,8 +75,8 @@ export class ConnectionManager {
  private setupWebSocketServer(): void {
   this.wss.on('connection', (ws, request) => {
    const playerUUID = request.headers['x-player-uuid'] as string;
-   const playerUsername = request.headers['x-player-username'] as string;
-   this.messageHandler.handleConnection(ws, playerUUID, playerUsername);
+   const playerName = request.headers['x-player-name'] as string;
+   this.messageHandler.handleConnection(ws, playerUUID, playerName);
 
    ws.on('message', (message) => {
     try {
